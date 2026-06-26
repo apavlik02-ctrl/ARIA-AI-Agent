@@ -11,6 +11,7 @@ interface Notification {
   read: boolean;
   actionLabel?: string;
   actionUrl?: string;
+  data?: Record<string, any>;
 }
 
 interface InAppNotificationCenterProps {

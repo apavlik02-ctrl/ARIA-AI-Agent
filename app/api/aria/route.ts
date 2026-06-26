@@ -190,8 +190,8 @@ export async function POST(request: NextRequest) {
         }
 
         case 'get_insurance_regulation': {
-          toolData = getInsuranceRegulation(intent.params.state, intent.params.topic);
-          message = `Wisconsin regulation for ${intent.params.topic}.`;
+          toolData = getInsuranceRegulation(intent.params?.state ?? '', intent.params?.topic ?? '');
+          message = `Wisconsin regulation for ${intent.params?.topic}.`;
           break;
         }
       }
