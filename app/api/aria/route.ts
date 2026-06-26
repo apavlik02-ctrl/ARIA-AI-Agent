@@ -14,10 +14,10 @@ import {
   getInsuranceRegulation,
 } from '@/lib/aria-tools';
 
-// Initialize Supabase (use service role key on server)
+// Initialize Supabase (service role key preferred; falls back to anon key)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)!
 );
 
 interface Message {
