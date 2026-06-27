@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ARIADashboard from '@/components/ARIADashboard';
+import OnboardingModal from '@/components/OnboardingModal';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { getDefaultProgress, UserProgress } from '@/lib/progress';
@@ -101,6 +102,7 @@ export default function DashboardPage() {
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [progressLoading, setProgressLoading] = useState(true);
   const [ariaOpen, setAriaOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -109,6 +111,12 @@ export default function DashboardPage() {
       return;
     }
     loadProgress(user.id);
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && user) loadProgress(user.id);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [user, authLoading]);
 
   async function loadProgress(userId: string) {
@@ -121,13 +129,27 @@ export default function DashboardPage() {
 
     if (data) {
       setProgress(data as UserProgress);
+      if (!data.exam_date) setShowOnboarding(true);
     } else {
-      // First time user — create default progress row
       const defaults = getDefaultProgress(userId);
       await supabase.from('aria_progress').insert(defaults);
       setProgress(defaults);
+      setShowOnboarding(true);
     }
     setProgressLoading(false);
+  }
+
+  async function handleOnboardingComplete(data: { exam_date: string; state: string; exam_type: string; comfort_level: number }) {
+    if (!user) return;
+    const startingReadiness = data.comfort_level * 15 + 15;
+    const updated = { ...progress!, exam_date: data.exam_date, current_readiness: startingReadiness };
+    await supabase.from('aria_progress').update({
+      exam_date: data.exam_date,
+      current_readiness: startingReadiness,
+      updated_at: new Date().toISOString(),
+    }).eq('user_id', user.id);
+    setProgress(updated);
+    setShowOnboarding(false);
   }
 
   if (authLoading || progressLoading) {
@@ -142,7 +164,6 @@ export default function DashboardPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0F0A07', color: '#EDE0D4' }}>
-      {/* User nav bar */}
       <div style={{ position: 'fixed', top: 0, right: 0, zIndex: 50, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
         <span style={{ fontSize: 13, color: 'rgba(237,224,212,0.5)' }}>{user.email}</span>
         <button
@@ -155,11 +176,13 @@ export default function DashboardPage() {
 
       <ARIADashboard
         userProgress={progress}
+        userName={user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0]}
         onStartQuiz={() => window.location.href = '/quiz'}
         onViewFullSchedule={() => window.location.href = '/study-plan'}
         onOpenARIA={() => setAriaOpen(true)}
       />
       {ariaOpen && <ARIAChat userId={user.id} onClose={() => setAriaOpen(false)} />}
+      {showOnboarding && <OnboardingModal onComplete={handleOnboardingComplete} />}
     </div>
   );
 }

@@ -15,59 +15,53 @@ import {
   getInsuranceRegulation,
 } from '@/lib/aria-tools';
 
-// Initialize Supabase (service role key preferred; falls back to anon key)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)!
-);
+// Service-role client (bypasses RLS) — used when available
+const adminSupabase = process.env.SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY)
+  : null;
+
+// Return an authenticated client: service role if available, else user-scoped via access token
+function getSupabase(accessToken?: string) {
+  if (adminSupabase) return adminSupabase;
+  const client = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  if (accessToken) {
+    client.auth.setSession({ access_token: accessToken, refresh_token: '' });
+  }
+  return client;
+}
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
 
-// Helper: Get or create user progress
-async function getOrCreateProgress(userId: string): Promise<UserProgress> {
-  const { data, error } = await supabase
-    .from('aria_progress')
-    .select('*')
-    .eq('user_id', userId)
-    .single();
+async function getOrCreateProgress(userId: string, accessToken?: string): Promise<UserProgress> {
+  const sb = getSupabase(accessToken);
+  const { data } = await sb.from('aria_progress').select('*').eq('user_id', userId).single();
 
   if (data) return data as UserProgress;
 
   const defaultProgress = getDefaultProgress(userId);
-  await supabase.from('aria_progress').insert(defaultProgress);
+  await sb.from('aria_progress').insert(defaultProgress);
   return defaultProgress;
 }
 
-// Helper: Update progress after a quiz
 async function updateProgressAfterQuiz(
   userId: string,
   currentProgress: UserProgress,
-  quizResult: {
-    overall_score: number;
-    domain_scores: Record<string, number>;
-  }
+  quizResult: { overall_score: number; domain_scores: Record<string, number> },
+  accessToken?: string
 ) {
   const newReadiness = calculateNewReadiness(
     currentProgress.current_readiness,
-    {
-      overall_score: quizResult.overall_score,
-      domain_scores: quizResult.domain_scores,
-      weak_domains: [],
-    }
+    { overall_score: quizResult.overall_score, domain_scores: quizResult.domain_scores, weak_domains: [] }
   );
 
-  const newWeakDomains = updateWeakDomains(
-    currentProgress.weak_domains,
-    quizResult.domain_scores
-  );
-
-  const newStreak = updateStudyStreak(
-    currentProgress.study_streak,
-    currentProgress.last_study_date
-  );
+  const newWeakDomains = updateWeakDomains(currentProgress.weak_domains, quizResult.domain_scores);
+  const newStreak = updateStudyStreak(currentProgress.study_streak, currentProgress.last_study_date);
 
   const quizEntry = {
     date: new Date().toISOString(),
@@ -77,7 +71,7 @@ async function updateProgressAfterQuiz(
 
   const updatedHistory = [...(currentProgress.quiz_history || []), quizEntry].slice(-10);
 
-  const { error } = await supabase
+  const { error } = await getSupabase(accessToken)
     .from('aria_progress')
     .update({
       current_readiness: newReadiness,
@@ -90,18 +84,11 @@ async function updateProgressAfterQuiz(
     })
     .eq('user_id', userId);
 
-  if (error) {
-    console.error('Failed to update progress:', error);
-  }
+  if (error) console.error('Failed to update progress:', error);
 
-  return {
-    new_readiness: newReadiness,
-    weak_domains: newWeakDomains,
-    study_streak: newStreak,
-  };
+  return { new_readiness: newReadiness, weak_domains: newWeakDomains, study_streak: newStreak };
 }
 
-// Intent detection (same as before, slightly enhanced)
 function detectIntent(message: string) {
   const lower = message.toLowerCase();
 
@@ -123,12 +110,11 @@ function detectIntent(message: string) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { messages, mode = 'study', userId, action, payload } = body;
+    const { messages, mode = 'study', userId, action, payload, accessToken } = body;
 
-    // === Handle Quiz Result Submission (for updating progress) ===
     if (action === 'submit_quiz_result' && userId && payload) {
-      const progress = await getOrCreateProgress(userId);
-      const updated = await updateProgressAfterQuiz(userId, progress, payload.quizResult);
+      const progress = await getOrCreateProgress(userId, accessToken);
+      const updated = await updateProgressAfterQuiz(userId, progress, payload.quizResult, accessToken);
 
       return NextResponse.json({
         type: 'progress_updated',
@@ -144,20 +130,17 @@ export async function POST(request: NextRequest) {
     const lastUserMessage = [...messages].reverse().find((m: Message) => m.role === 'user')?.content || '';
     const intent = detectIntent(lastUserMessage);
 
-    // Load user progress if userId is provided
     let userProgress: UserProgress | null = null;
     if (userId) {
-      userProgress = await getOrCreateProgress(userId);
+      userProgress = await getOrCreateProgress(userId, accessToken);
     }
 
-    // === Tool Execution ===
     if (intent.tool) {
       let toolData: any;
       let message = '';
 
       switch (intent.tool) {
         case 'generate_practice_questions': {
-          // Bias toward weak domains if we have progress
           const domains = userProgress?.weak_domains?.length
             ? [...userProgress.weak_domains, 'life_types', 'policy_provisions']
             : ['life_types', 'policy_provisions', 'health_insurance', 'riders', 'regulations'];
@@ -168,7 +151,6 @@ export async function POST(request: NextRequest) {
         }
 
         case 'analyze_readiness': {
-          // Use latest quiz from history or sample
           const latestQuiz = userProgress?.quiz_history?.[userProgress.quiz_history.length - 1];
           const quizResults = latestQuiz
             ? { overall_score: latestQuiz.score, domain_scores: latestQuiz.domain_scores }
@@ -212,7 +194,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // === Claude Fallback ===
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json({
         type: 'claude_fallback',
