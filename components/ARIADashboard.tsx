@@ -1,6 +1,7 @@
 import React from 'react';
 import ReadinessWidget from './ReadinessWidget';
 import ReadinessChart from './ReadinessChart';
+import StreakCalendar from './StreakCalendar';
 import StudyScheduleRenderer from './StudyScheduleRenderer';
 
 interface ARIADashboardProps {
@@ -70,6 +71,13 @@ export default function ARIADashboard({
             <ReadinessChart
               quizHistory={userProgress.quiz_history?.map(q => ({ date: q.date, score: q.score })) || []}
               currentReadiness={userProgress.current_readiness}
+            />
+          </div>
+
+          <div style={{ marginTop: 16 }}>
+            <StreakCalendar
+              quizHistory={userProgress.quiz_history || []}
+              studyStreak={userProgress.study_streak}
             />
           </div>
 
