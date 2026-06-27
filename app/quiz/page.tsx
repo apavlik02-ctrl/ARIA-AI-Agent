@@ -42,11 +42,13 @@ function QuizContent() {
     const strongDomains = Object.entries(results.domain_scores ?? {})
       .filter(([, s]: any) => s >= 70)
       .sort(([, a]: any, [, b]: any) => b - a);
+    const reviewQuestions: any[] = results.questions ?? [];
 
     return (
       <>
         <Header />
         <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-12">
+          {/* Score hero */}
           <div className="text-center mb-10">
             <div className={`w-24 h-24 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 ${passed ? 'bg-gradient-to-br from-green-500 to-green-700' : 'bg-gradient-to-br from-[#C9874F] to-[#7B3910]'}`}>
               {score}%
@@ -58,8 +60,9 @@ function QuizContent() {
             </p>
           </div>
 
+          {/* Domain breakdown */}
           {weakDomains.length > 0 && (
-            <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-5 mb-5">
+            <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-5 mb-4">
               <div className="text-sm font-semibold text-red-400 mb-3">Focus on these next</div>
               <div className="space-y-2.5">
                 {weakDomains.map(([domain, s]: any) => (
@@ -76,7 +79,7 @@ function QuizContent() {
           )}
 
           {strongDomains.length > 0 && (
-            <div className="bg-green-500/5 border border-green-500/20 rounded-2xl p-5 mb-8">
+            <div className="bg-green-500/5 border border-green-500/20 rounded-2xl p-5 mb-6">
               <div className="text-sm font-semibold text-green-400 mb-3">Strong areas</div>
               <div className="space-y-2.5">
                 {strongDomains.map(([domain, s]: any) => (
@@ -92,6 +95,46 @@ function QuizContent() {
             </div>
           )}
 
+          {/* Per-question review */}
+          {reviewQuestions.length > 0 && (
+            <div className="mb-8">
+              <div className="text-sm font-semibold text-[#EDE0D4]/60 uppercase tracking-wider mb-3">Question Review</div>
+              <div className="flex flex-col gap-4">
+                {reviewQuestions.map((q: any, i: number) => {
+                  const userAnswer = results.selected_answers?.[q.id];
+                  const correct = userAnswer === q.correct;
+                  return (
+                    <div
+                      key={q.id}
+                      className={`rounded-2xl border p-5 ${correct ? 'border-green-500/20 bg-green-500/5' : 'border-red-500/20 bg-red-500/5'}`}
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <span className={`text-xs font-bold mt-0.5 shrink-0 ${correct ? 'text-green-400' : 'text-red-400'}`}>
+                          {correct ? '✓' : '✗'} Q{i + 1}
+                        </span>
+                        <p className="text-sm text-[#EDE0D4]/90 leading-relaxed">{q.question}</p>
+                      </div>
+                      {!correct && (
+                        <div className="flex gap-4 text-xs mb-3 pl-6">
+                          <span className="text-red-400">Your answer: <strong>{userAnswer ?? '—'}</strong></span>
+                          <span className="text-green-400">Correct: <strong>{q.correct}</strong></span>
+                        </div>
+                      )}
+                      <div className="pl-6">
+                        <p className="text-xs text-[#EDE0D4]/60 leading-relaxed mb-2">{q.explanation}</p>
+                        <div className="flex items-start gap-2 bg-[#C9874F]/10 border border-[#C9874F]/20 rounded-xl px-3 py-2">
+                          <span className="text-[#C9874F] text-xs font-semibold shrink-0">KNOW THIS</span>
+                          <p className="text-xs text-[#EDE0D4]/60 leading-relaxed">{q.know_this}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
             {weakDomains.length > 0 && (
               <a
