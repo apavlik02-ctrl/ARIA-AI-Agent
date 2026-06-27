@@ -34,29 +34,85 @@ function QuizContent() {
   }
 
   if (results) {
+    const score = Math.round(results.overall_score ?? 0);
+    const passed = score >= 70;
+    const weakDomains = Object.entries(results.domain_scores ?? {})
+      .filter(([, s]: any) => s < 70)
+      .sort(([, a]: any, [, b]: any) => a - b);
+    const strongDomains = Object.entries(results.domain_scores ?? {})
+      .filter(([, s]: any) => s >= 70)
+      .sort(([, a]: any, [, b]: any) => b - a);
+
     return (
       <>
         <Header />
-        <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-16 text-center">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#C9874F] to-[#7B3910] flex items-center justify-center text-white font-bold text-3xl mx-auto mb-6">
-            {Math.round(results.overall_score ?? 0)}%
+        <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-12">
+          {/* Score hero */}
+          <div className="text-center mb-10">
+            <div className={`w-24 h-24 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 ${passed ? 'bg-gradient-to-br from-green-500 to-green-700' : 'bg-gradient-to-br from-[#C9874F] to-[#7B3910]'}`}>
+              {score}%
+            </div>
+            <h2 className="text-2xl font-semibold mb-1">{passed ? 'Great work!' : 'Keep going!'}</h2>
+            <p className="text-[#EDE0D4]/60">
+              {results.correct_count} of {results.total_questions} correct
+              {passed ? ' — you\'re on track.' : ' — review your weak areas below.'}
+            </p>
           </div>
-          <h2 className="text-2xl font-semibold mb-2">Quiz Complete</h2>
-          <p className="text-[#EDE0D4]/60 mb-8">You scored {Math.round(results.overall_score ?? 0)}% overall.</p>
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8 text-left space-y-3">
-            {Object.entries(results.domain_scores ?? {}).map(([domain, score]: any) => (
-              <div key={domain} className="flex items-center justify-between">
-                <span className="text-sm text-[#EDE0D4]/70 capitalize">{domain.replace(/_/g, ' ')}</span>
-                <span className={`text-sm font-medium ${score >= 70 ? 'text-green-400' : 'text-red-400'}`}>{Math.round(score)}%</span>
+
+          {/* Weak domains callout */}
+          {weakDomains.length > 0 && (
+            <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-5 mb-5">
+              <div className="text-sm font-semibold text-red-400 mb-3">Focus on these next</div>
+              <div className="space-y-2.5">
+                {weakDomains.map(([domain, s]: any) => (
+                  <div key={domain} className="flex items-center gap-3">
+                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-red-500/60 rounded-full" style={{ width: `${Math.round(s)}%` }} />
+                    </div>
+                    <span className="text-xs text-[#EDE0D4]/60 w-8 text-right">{Math.round(s)}%</span>
+                    <span className="text-sm text-[#EDE0D4]/80 capitalize w-40">{domain.replace(/_/g, ' ')}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="flex gap-3 justify-center">
-            <button onClick={() => { setStarted(false); setResults(null); }} className="px-6 py-3 rounded-2xl border border-white/20 hover:bg-white/5 transition-all text-sm">
-              Take another quiz
+            </div>
+          )}
+
+          {/* Strong domains */}
+          {strongDomains.length > 0 && (
+            <div className="bg-green-500/5 border border-green-500/20 rounded-2xl p-5 mb-8">
+              <div className="text-sm font-semibold text-green-400 mb-3">Strong areas</div>
+              <div className="space-y-2.5">
+                {strongDomains.map(([domain, s]: any) => (
+                  <div key={domain} className="flex items-center gap-3">
+                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-green-500/60 rounded-full" style={{ width: `${Math.round(s)}%` }} />
+                    </div>
+                    <span className="text-xs text-[#EDE0D4]/60 w-8 text-right">{Math.round(s)}%</span>
+                    <span className="text-sm text-[#EDE0D4]/80 capitalize w-40">{domain.replace(/_/g, ' ')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {weakDomains.length > 0 && (
+              <a
+                href={`/quiz?domains=${weakDomains.map(([d]) => d).join(',')}&count=10&autostart=1`}
+                className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white font-medium hover:opacity-90 transition-all text-sm text-center"
+              >
+                Practice weak areas →
+              </a>
+            )}
+            <button
+              onClick={() => { setStarted(false); setResults(null); }}
+              className="flex-1 py-3 rounded-2xl border border-white/20 hover:bg-white/5 transition-all text-sm"
+            >
+              New quiz
             </button>
-            <a href="/dashboard" className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white font-medium hover:opacity-90 transition-all text-sm">
-              Back to dashboard
+            <a href="/dashboard" className="flex-1 py-3 rounded-2xl border border-white/20 hover:bg-white/5 transition-all text-sm text-center">
+              Dashboard
             </a>
           </div>
         </main>
