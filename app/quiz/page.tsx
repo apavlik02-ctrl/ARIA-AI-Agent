@@ -20,6 +20,8 @@ function QuizContent() {
       const parsed = d.split(',').filter(x => ALL_DOMAINS.includes(x));
       if (parsed.length) setDomains(parsed);
     }
+    const c = parseInt(searchParams.get('count') ?? '', 10);
+    if (c > 0) setCount(c);
     if (searchParams.get('autostart') === '1') setStarted(true);
   }, [searchParams]);
 
@@ -100,7 +102,7 @@ function QuizContent() {
         <div className="mb-10">
           <p className="text-sm text-[#EDE0D4]/70 mb-3">Number of questions</p>
           <div className="flex gap-3">
-            {[5, 10, 20].map(n => (
+            {[5, 10, 20, 40].map(n => (
               <button
                 key={n}
                 onClick={() => setCount(n)}

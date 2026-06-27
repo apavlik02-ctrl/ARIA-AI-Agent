@@ -32,8 +32,9 @@ export default function StudyPlanPage() {
 
   const visible = showAll ? filtered : filtered.slice(0, 14);
 
-  function quizUrl(domains: string[]) {
-    return `/quiz?domains=${domains.join(',')}`;
+  function quizUrl(domains: string[], simulation = false) {
+    const count = simulation ? 40 : 10;
+    return `/quiz?domains=${domains.join(',')}&count=${count}`;
   }
 
   const isPast = (date: string) => date < TODAY;
@@ -122,7 +123,7 @@ export default function StudyPlanPage() {
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
                     today ? 'bg-[#C9874F] text-white' : isSimulation ? 'bg-[#C9874F]/20 text-[#C9874F]' : 'bg-white/5 text-[#EDE0D4]/60'
                   }`}>
-                    {past ? '✓' : item.day}
+                    {past ? '✓' : isSimulation ? 'SIM' : item.day}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -139,7 +140,7 @@ export default function StudyPlanPage() {
 
                 {!past && (
                   <a
-                    href={quizUrl(item.focus_domains)}
+                    href={quizUrl(item.focus_domains, isSimulation)}
                     className={`text-xs px-4 py-2 rounded-xl font-medium shrink-0 transition-all ${
                       isSimulation || today
                         ? 'bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white hover:opacity-90'
