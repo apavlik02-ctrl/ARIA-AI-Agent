@@ -84,16 +84,36 @@ export default function ReadinessWidget({ progress, onStartQuiz, onViewSchedule 
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {weak_domains.map((domain, i) => (
-              <div key={i} style={{
-                background: "rgba(248,113,113,0.15)",
-                color: "#f87171",
-                padding: "3px 10px",
-                borderRadius: 6,
-                fontSize: 12,
-              }}>
-                {domain.replace("_", " ")}
-              </div>
+              <a
+                key={i}
+                href={`/quiz?domains=${domain}&count=5&autostart=1`}
+                title="Drill down on this topic →"
+                style={{
+                  background: "rgba(248,113,113,0.15)",
+                  color: "#f87171",
+                  padding: "3px 10px",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  textDecoration: "none",
+                  border: "1px solid transparent",
+                  cursor: "pointer",
+                  transition: "border-color 0.15s, background 0.15s",
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "#f87171";
+                  (e.currentTarget as HTMLAnchorElement).style.background = "rgba(248,113,113,0.25)";
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "transparent";
+                  (e.currentTarget as HTMLAnchorElement).style.background = "rgba(248,113,113,0.15)";
+                }}
+              >
+                {domain.replace(/_/g, " ")} →
+              </a>
             ))}
+          </div>
+          <div style={{ fontSize: 10, color: "rgba(237,224,212,0.25)", marginTop: 6 }}>
+            Click any area to drill down with 5 focused questions
           </div>
         </div>
       )}
