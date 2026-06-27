@@ -4,11 +4,13 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import QuizRenderer from '@/components/QuizRenderer';
 import { generatePracticeQuestions } from '@/lib/aria-tools';
+import { useAuth } from '@/hooks/useAuth';
 
 const ALL_DOMAINS = ['life_types', 'health_insurance', 'policy_provisions', 'riders', 'annuities', 'regulations', 'federal_tax', 'qualified_plans'];
 
 function QuizContent() {
   const searchParams = useSearchParams();
+  const { user } = useAuth();
   const [started, setStarted] = useState(false);
   const [domains, setDomains] = useState<string[]>([]);
   const [count, setCount] = useState(10);
@@ -67,7 +69,20 @@ function QuizContent() {
       <>
         <Header />
         <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-10">
-          <QuizRenderer questions={questions} onComplete={(res: any) => setResults(res)} />
+          <QuizRenderer questions={questions} onComplete={async (res: any) => {
+            setResults(res);
+            if (user) {
+              await fetch('/api/aria', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  action: 'submit_quiz_result',
+                  userId: user.id,
+                  payload: { quizResult: res },
+                }),
+              });
+            }
+          }} />
         </main>
       </>
     );
