@@ -65,6 +65,7 @@ export default function QuizRenderer({ questions, onComplete }: QuizRendererProp
         Object.entries(domainScores).map(([d, s]) => [d, Math.round((s.correct / s.total) * 100)])
       ),
       selected_answers: selectedAnswers,
+      questions,
     };
   }
 
@@ -92,7 +93,7 @@ export default function QuizRenderer({ questions, onComplete }: QuizRendererProp
       {/* Options */}
       <div className="flex flex-col gap-3">
         {currentQuestion.options.map((option, idx) => {
-          const letter = option[0]; // "A", "B", "C", "D"
+          const letter = option[0];
           const isSelected = selected === letter;
           const isAnswer = letter === currentQuestion.correct;
 
@@ -129,7 +130,7 @@ export default function QuizRenderer({ questions, onComplete }: QuizRendererProp
         })}
       </div>
 
-      {/* Explanation panel — shown after reveal */}
+      {/* Explanation panel */}
       {revealed && (
         <div className={`rounded-2xl p-5 border ${isCorrect ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
           <div className={`text-sm font-semibold mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
