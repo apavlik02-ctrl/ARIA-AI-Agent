@@ -1,16 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import QuizRenderer from '@/components/QuizRenderer';
 import { generatePracticeQuestions } from '@/lib/aria-tools';
 
 const ALL_DOMAINS = ['life_types', 'health_insurance', 'policy_provisions', 'riders', 'annuities', 'regulations', 'federal_tax', 'qualified_plans'];
 
-export default function QuizPage() {
+function QuizContent() {
+  const searchParams = useSearchParams();
   const [started, setStarted] = useState(false);
   const [domains, setDomains] = useState<string[]>([]);
   const [count, setCount] = useState(10);
   const [results, setResults] = useState<any>(null);
+
+  useEffect(() => {
+    const d = searchParams.get('domains');
+    if (d) {
+      const parsed = d.split(',').filter(x => ALL_DOMAINS.includes(x));
+      if (parsed.length) setDomains(parsed);
+    }
+    if (searchParams.get('autostart') === '1') setStarted(true);
+  }, [searchParams]);
 
   const questions = started ? generatePracticeQuestions(domains.length ? domains : ALL_DOMAINS, count) : [];
 
@@ -18,13 +29,9 @@ export default function QuizPage() {
     setDomains(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d]);
   }
 
-  function handleComplete(res: any) {
-    setResults(res);
-  }
-
   if (results) {
     return (
-      <div className="min-h-screen bg-[#0F0A07] text-[#EDE0D4] flex flex-col">
+      <>
         <Header />
         <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-16 text-center">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#C9874F] to-[#7B3910] flex items-center justify-center text-white font-bold text-3xl mx-auto mb-6">
@@ -49,23 +56,23 @@ export default function QuizPage() {
             </a>
           </div>
         </main>
-      </div>
+      </>
     );
   }
 
   if (started) {
     return (
-      <div className="min-h-screen bg-[#0F0A07] text-[#EDE0D4] flex flex-col">
+      <>
         <Header />
         <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-10">
-          <QuizRenderer questions={questions} onComplete={handleComplete} />
+          <QuizRenderer questions={questions} onComplete={(res: any) => setResults(res)} />
         </main>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0F0A07] text-[#EDE0D4] flex flex-col">
+    <>
       <Header />
       <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-16">
         <h1 className="text-3xl font-semibold mb-2">Diagnostic Quiz</h1>
@@ -114,6 +121,16 @@ export default function QuizPage() {
           ⚡ Start Quiz
         </button>
       </main>
+    </>
+  );
+}
+
+export default function QuizPage() {
+  return (
+    <div className="min-h-screen bg-[#0F0A07] text-[#EDE0D4] flex flex-col">
+      <Suspense fallback={<div className="flex-1 flex items-center justify-center text-[#EDE0D4]/40">Loading…</div>}>
+        <QuizContent />
+      </Suspense>
     </div>
   );
 }
