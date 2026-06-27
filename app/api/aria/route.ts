@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import Anthropic from '@anthropic-ai/sdk';
 import {
   getDefaultProgress,
   calculateNewReadiness,
@@ -14,10 +15,10 @@ import {
   getInsuranceRegulation,
 } from '@/lib/aria-tools';
 
-// Initialize Supabase (use service role key on server)
+// Initialize Supabase (service role key preferred; falls back to anon key)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)!
 );
 
 interface Message {
@@ -190,8 +191,8 @@ export async function POST(request: NextRequest) {
         }
 
         case 'get_insurance_regulation': {
-          toolData = getInsuranceRegulation(intent.params.state, intent.params.topic);
-          message = `Wisconsin regulation for ${intent.params.topic}.`;
+          toolData = getInsuranceRegulation(intent.params?.state ?? '', intent.params?.topic ?? '');
+          message = `Wisconsin regulation for ${intent.params?.topic}.`;
           break;
         }
       }
@@ -212,10 +213,25 @@ export async function POST(request: NextRequest) {
     }
 
     // === Claude Fallback ===
-    return NextResponse.json({
-      type: 'claude_fallback',
-      message: 'No tool matched. Falling back to Claude.',
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json({
+        type: 'claude_fallback',
+        message: "I'm ARIA, your insurance exam coach! I can help with practice questions, study plans, and readiness analysis. Try asking me for a quiz or to analyze your readiness.",
+      });
+    }
+
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const systemPrompt = `You are ARIA, an expert AI coach for U.S. insurance licensing exams, specializing in Wisconsin Life & Health insurance. You help students prepare for their state licensing exam with practice questions, study strategies, concept explanations, and encouragement. Keep responses concise and focused on exam prep. ${userProgress ? `The student's current readiness is ${userProgress.current_readiness}% and their weak areas are: ${userProgress.weak_domains?.join(', ')}.` : ''}`;
+
+    const response = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 512,
+      system: systemPrompt,
+      messages: messages.map((m: Message) => ({ role: m.role, content: m.content })),
     });
+
+    const reply = response.content[0].type === 'text' ? response.content[0].text : '';
+    return NextResponse.json({ type: 'claude_response', message: reply });
   } catch (error: any) {
     console.error('ARIA API Error:', error);
     return NextResponse.json(
