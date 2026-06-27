@@ -1,15 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import QuizRenderer from '@/components/QuizRenderer';
 import { generatePracticeQuestions } from '@/lib/aria-tools';
 
 const ALL_DOMAINS = ['life_types', 'health_insurance', 'policy_provisions', 'riders', 'annuities', 'regulations', 'federal_tax', 'qualified_plans'];
 
 export default function QuizPage() {
+  const searchParams = useSearchParams();
   const [started, setStarted] = useState(false);
   const [domains, setDomains] = useState<string[]>([]);
   const [count, setCount] = useState(10);
+
+  useEffect(() => {
+    const d = searchParams.get('domains');
+    if (d) {
+      const parsed = d.split(',').filter(x => ALL_DOMAINS.includes(x));
+      if (parsed.length) setDomains(parsed);
+    }
+    if (searchParams.get('autostart') === '1') setStarted(true);
+  }, [searchParams]);
   const [results, setResults] = useState<any>(null);
 
   const questions = started ? generatePracticeQuestions(domains.length ? domains : ALL_DOMAINS, count) : [];
