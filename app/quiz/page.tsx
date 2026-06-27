@@ -10,7 +10,7 @@ const ALL_DOMAINS = ['life_types', 'health_insurance', 'policy_provisions', 'rid
 
 function QuizContent() {
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [started, setStarted] = useState(false);
   const [domains, setDomains] = useState<string[]>([]);
   const [count, setCount] = useState(10);
@@ -47,7 +47,6 @@ function QuizContent() {
       <>
         <Header />
         <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-12">
-          {/* Score hero */}
           <div className="text-center mb-10">
             <div className={`w-24 h-24 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 ${passed ? 'bg-gradient-to-br from-green-500 to-green-700' : 'bg-gradient-to-br from-[#C9874F] to-[#7B3910]'}`}>
               {score}%
@@ -59,7 +58,6 @@ function QuizContent() {
             </p>
           </div>
 
-          {/* Weak domains callout */}
           {weakDomains.length > 0 && (
             <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-5 mb-5">
               <div className="text-sm font-semibold text-red-400 mb-3">Focus on these next</div>
@@ -77,7 +75,6 @@ function QuizContent() {
             </div>
           )}
 
-          {/* Strong domains */}
           {strongDomains.length > 0 && (
             <div className="bg-green-500/5 border border-green-500/20 rounded-2xl p-5 mb-8">
               <div className="text-sm font-semibold text-green-400 mb-3">Strong areas</div>
@@ -95,7 +92,6 @@ function QuizContent() {
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3">
             {weakDomains.length > 0 && (
               <a
@@ -134,6 +130,7 @@ function QuizContent() {
                 body: JSON.stringify({
                   action: 'submit_quiz_result',
                   userId: user.id,
+                  accessToken: session?.access_token,
                   payload: { quizResult: res },
                 }),
               });
