@@ -15,7 +15,7 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { full_name: name } },
@@ -23,7 +23,11 @@ export default function SignupPage() {
     if (error) {
       setError(error.message);
       setLoading(false);
+    } else if (data.session) {
+      // Email confirmation disabled — session is active, go straight to dashboard
+      window.location.href = '/dashboard';
     } else {
+      // Email confirmation required — show confirmation screen
       setSuccess(true);
     }
   }
