@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
@@ -8,6 +8,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) window.location.href = '/dashboard';
+    });
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();

@@ -1,8 +1,25 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ARIALandingPage() {
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      window.location.href = '/dashboard';
+    }
+  }, [user, loading]);
+
+  if (loading || user) {
+    return (
+      <div className="min-h-screen bg-[#0F0A07] flex items-center justify-center">
+        <div className="text-[#EDE0D4]/40 text-sm">Loading…</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0F0A07] text-[#EDE0D4]">
       {/* Header */}
