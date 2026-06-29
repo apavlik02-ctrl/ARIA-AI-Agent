@@ -6,14 +6,29 @@ export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    // In production wire to an email service or Supabase table
-    await new Promise(r => setTimeout(r, 800));
-    setSubmitted(true);
-    setLoading(false);
+    setError('');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: form.name, email: form.email, message: form.message }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setError(data.error || 'Something went wrong. Please try again.');
+      } else {
+        setSubmitted(true);
+      }
+    } catch {
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {
@@ -44,10 +59,16 @@ export default function ContactPage() {
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-6 py-16">
-        <div className="w-full max-w-md">
+      <main className="flex-1 flex items-center justify-center px-4 py-16">
+        <div className="w-full max-w-2xl mx-auto">
           <h1 className="text-3xl font-semibold mb-2">Contact us</h1>
           <p className="text-[#EDE0D4]/60 mb-8">Have a question? We'd love to hear from you.</p>
+
+          {error && (
+            <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
