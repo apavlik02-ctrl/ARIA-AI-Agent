@@ -1,1 +1,1 @@
-{}
+{ "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_AUTHOR_LOGIN\" = \"apavlik02-blip\" ]" }
