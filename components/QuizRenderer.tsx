@@ -88,7 +88,7 @@ export default function QuizRenderer({ questions, onComplete }: QuizRendererProp
       </div>
 
       {/* Question */}
-      <div className="text-lg font-medium leading-relaxed">{currentQuestion.question}</div>
+      <div className="text-base sm:text-lg font-medium leading-relaxed">{currentQuestion.question}</div>
 
       {/* Options */}
       <div className="flex flex-col gap-3">
@@ -121,7 +121,7 @@ export default function QuizRenderer({ questions, onComplete }: QuizRendererProp
               key={idx}
               onClick={() => handleSelect(letter)}
               disabled={revealed}
-              className={`text-left px-5 py-3.5 rounded-xl border transition-all ${bg} ${borderColor} ${textColor} ${!revealed ? 'hover:border-[#C9874F]/40 cursor-pointer' : 'cursor-default'}`}
+              className={`w-full text-left px-5 py-3.5 min-h-[48px] rounded-xl border transition-all ${bg} ${borderColor} ${textColor} ${!revealed ? 'hover:border-[#C9874F]/40 cursor-pointer' : 'cursor-default'}`}
             >
               <span className="font-medium mr-2">{option[0]})</span>
               {option.slice(3)}
@@ -149,7 +149,7 @@ export default function QuizRenderer({ questions, onComplete }: QuizRendererProp
         <button
           onClick={handleCheck}
           disabled={!selected}
-          className={`w-full py-3.5 rounded-2xl font-medium transition-all ${
+          className={`w-full py-3.5 min-h-[48px] rounded-2xl font-medium transition-all ${
             selected
               ? 'bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white hover:opacity-90'
               : 'bg-white/5 text-[#EDE0D4]/30 cursor-not-allowed'
@@ -160,7 +160,7 @@ export default function QuizRenderer({ questions, onComplete }: QuizRendererProp
       ) : (
         <button
           onClick={handleNext}
-          className="w-full py-3.5 rounded-2xl font-medium bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white hover:opacity-90 transition-all"
+          className="w-full py-3.5 min-h-[48px] rounded-2xl font-medium bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white hover:opacity-90 transition-all"
         >
           {isLast ? 'See Results' : 'Next Question →'}
         </button>
