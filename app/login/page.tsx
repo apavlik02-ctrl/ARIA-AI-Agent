@@ -31,18 +31,18 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#0F0A07] text-[#EDE0D4] flex flex-col">
       <header className="border-b border-white/10">
-        <div className="max-w-[1100px] mx-auto px-6 py-6 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-3">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+          <a href="/" className="min-h-[44px] flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C9874F] to-[#7B3910] flex items-center justify-center text-white font-bold text-lg">A</div>
             <div className="text-2xl font-semibold tracking-[3px]">ARIA</div>
           </a>
-          <a href="/signup" className="text-sm text-[#C9874F] hover:opacity-80 transition-opacity">
-            Don't have an account? Sign up →
+          <a href="/signup" className="min-h-[44px] flex items-center text-sm text-[#C9874F] hover:opacity-80 transition-opacity">
+            <span className="hidden sm:inline">Don't have an account?&nbsp;</span>Sign up →
           </a>
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-6 py-16">
+      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-16">
         <div className="w-full max-w-md">
           <h1 className="text-3xl font-semibold mb-2">Welcome back</h1>
           <p className="text-[#EDE0D4]/60 mb-8">Log in to continue your exam prep.</p>
