@@ -69,19 +69,19 @@ export default function StudyPlanPage() {
   return (
     <div className="min-h-screen bg-[#0F0A07] text-[#EDE0D4] flex flex-col">
       <header className="border-b border-white/10">
-        <div className="max-w-[1100px] mx-auto px-6 py-5 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#C9874F] to-[#7B3910] flex items-center justify-center text-white font-bold">A</div>
             <div className="text-xl font-semibold tracking-[3px]">ARIA</div>
           </a>
-          <div className="flex items-center gap-4">
-            <a href="/settings" className="text-sm text-[#EDE0D4]/60 hover:text-[#EDE0D4] transition-colors">⚙ Settings</a>
-            <a href="/dashboard" className="text-sm text-[#EDE0D4]/60 hover:text-[#EDE0D4] transition-colors">← Dashboard</a>
+          <div className="flex items-center gap-1">
+            <a href="/settings" className="min-h-[44px] min-w-[44px] flex items-center justify-center text-sm text-[#EDE0D4]/60 hover:text-[#EDE0D4] transition-colors px-2">⚙ Settings</a>
+            <a href="/dashboard" className="min-h-[44px] min-w-[44px] flex items-center justify-center text-sm text-[#EDE0D4]/60 hover:text-[#EDE0D4] transition-colors px-2">← Dashboard</a>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-10">
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-10">
         <h1 className="text-3xl font-semibold mb-1">Your Study Plan</h1>
         <p className="text-[#EDE0D4]/60 mb-6">
           Personalized schedule based on your readiness and exam date.{' '}
@@ -140,7 +140,7 @@ export default function StudyPlanPage() {
             return (
               <div
                 key={i}
-                className={`flex items-center justify-between rounded-2xl px-5 py-4 border transition-all ${
+                className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl px-5 py-4 border transition-all ${
                   today
                     ? 'bg-[#C9874F]/10 border-[#C9874F]/50'
                     : isSimulation
@@ -170,7 +170,7 @@ export default function StudyPlanPage() {
                 {!past && (
                   <a
                     href={quizUrl(item.focus_domains, isSimulation)}
-                    className={`text-xs px-4 py-2 rounded-xl font-medium shrink-0 transition-all ${
+                    className={`text-xs px-4 py-2 rounded-xl font-medium shrink-0 transition-all text-center sm:text-left ${
                       isSimulation || today
                         ? 'bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white hover:opacity-90'
                         : 'border border-white/15 hover:border-[#C9874F]/50 hover:text-[#C9874F]'

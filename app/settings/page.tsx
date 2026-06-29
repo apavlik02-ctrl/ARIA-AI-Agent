@@ -115,16 +115,16 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-[#0F0A07] text-[#EDE0D4]">
       <header className="border-b border-white/10">
-        <div className="max-w-[1100px] mx-auto px-6 py-5 flex items-center justify-between">
+        <div className="max-w-2xl mx-auto px-4 py-5 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#C9874F] to-[#7B3910] flex items-center justify-center text-white font-bold">A</div>
             <div className="text-xl font-semibold tracking-[3px]">ARIA</div>
           </a>
-          <a href="/dashboard" className="text-sm text-[#EDE0D4]/60 hover:text-[#EDE0D4] transition-colors">← Dashboard</a>
+          <a href="/dashboard" className="min-h-[44px] min-w-[44px] flex items-center justify-center text-sm text-[#EDE0D4]/60 hover:text-[#EDE0D4] transition-colors px-2">← Dashboard</a>
         </div>
       </header>
 
-      <main className="max-w-xl mx-auto px-6 py-12">
+      <main className="max-w-2xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-semibold mb-1">Settings</h1>
         <p className="text-[#EDE0D4]/50 mb-10 text-sm">{user.email}</p>
 
@@ -238,6 +238,7 @@ export default function SettingsPage() {
           <p style={{ fontSize: 13, color: 'rgba(237,224,212,0.4)', marginBottom: 16 }}>Signed in as {user.email}</p>
           <button
             onClick={signOut}
+            className="w-full sm:w-auto"
             style={{ padding: '10px 20px', borderRadius: 10, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', fontSize: 14, cursor: 'pointer' }}
           >
             Sign out
