@@ -47,7 +47,7 @@ function QuizContent() {
     return (
       <>
         <Header />
-        <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-12">
+        <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-12">
           {/* Score hero */}
           <div className="text-center mb-10">
             <div className={`w-24 h-24 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 ${passed ? 'bg-gradient-to-br from-green-500 to-green-700' : 'bg-gradient-to-br from-[#C9874F] to-[#7B3910]'}`}>
@@ -139,18 +139,18 @@ function QuizContent() {
             {weakDomains.length > 0 && (
               <a
                 href={`/quiz?domains=${weakDomains.map(([d]) => d).join(',')}&count=10&autostart=1`}
-                className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white font-medium hover:opacity-90 transition-all text-sm text-center"
+                className="flex-1 py-3 min-h-[48px] rounded-2xl bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white font-medium hover:opacity-90 transition-all text-sm text-center flex items-center justify-center"
               >
                 Practice weak areas →
               </a>
             )}
             <button
               onClick={() => { setStarted(false); setResults(null); }}
-              className="flex-1 py-3 rounded-2xl border border-white/20 hover:bg-white/5 transition-all text-sm"
+              className="flex-1 py-3 min-h-[48px] rounded-2xl border border-white/20 hover:bg-white/5 transition-all text-sm"
             >
               New quiz
             </button>
-            <a href="/dashboard" className="flex-1 py-3 rounded-2xl border border-white/20 hover:bg-white/5 transition-all text-sm text-center">
+            <a href="/dashboard" className="flex-1 py-3 min-h-[48px] rounded-2xl border border-white/20 hover:bg-white/5 transition-all text-sm text-center flex items-center justify-center">
               Dashboard
             </a>
           </div>
@@ -163,7 +163,7 @@ function QuizContent() {
     return (
       <>
         <Header />
-        <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-10">
+        <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-10">
           <QuizRenderer questions={questions} onComplete={async (res: any) => {
             setResults(res);
             if (user) {
@@ -187,18 +187,18 @@ function QuizContent() {
   return (
     <>
       <Header />
-      <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-16">
+      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-16">
         <h1 className="text-3xl font-semibold mb-2">Diagnostic Quiz</h1>
         <p className="text-[#EDE0D4]/60 mb-10">Choose your focus areas and number of questions.</p>
 
         <div className="mb-8">
           <p className="text-sm text-[#EDE0D4]/70 mb-3">Focus areas <span className="text-[#EDE0D4]/40">(leave blank for all)</span></p>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {ALL_DOMAINS.map(d => (
               <button
                 key={d}
                 onClick={() => toggleDomain(d)}
-                className={`px-4 py-1.5 rounded-full text-sm border transition-all ${
+                className={`px-4 py-3 rounded-xl text-sm border transition-all text-left min-h-[48px] ${
                   domains.includes(d)
                     ? 'bg-[#C9874F]/20 border-[#C9874F] text-[#C9874F]'
                     : 'border-white/15 hover:border-white/30'
@@ -212,12 +212,12 @@ function QuizContent() {
 
         <div className="mb-10">
           <p className="text-sm text-[#EDE0D4]/70 mb-3">Number of questions</p>
-          <div className="flex gap-3">
+          <div className="grid grid-cols-4 gap-3">
             {[5, 10, 20, 40].map(n => (
               <button
                 key={n}
                 onClick={() => setCount(n)}
-                className={`px-6 py-2 rounded-xl text-sm border transition-all ${
+                className={`py-3 rounded-xl text-sm border transition-all min-h-[48px] ${
                   count === n ? 'bg-[#C9874F]/20 border-[#C9874F] text-[#C9874F]' : 'border-white/15 hover:border-white/30'
                 }`}
               >
@@ -229,7 +229,7 @@ function QuizContent() {
 
         <button
           onClick={() => setStarted(true)}
-          className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white font-medium hover:opacity-90 transition-all"
+          className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#C9874F] to-[#A0522D] text-white font-medium hover:opacity-90 transition-all min-h-[48px]"
         >
           ⚡ Start Quiz
         </button>
