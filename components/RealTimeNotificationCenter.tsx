@@ -43,7 +43,7 @@ export default function RealTimeNotificationCenter({ userId }: RealTimeNotificat
       onNotificationClick={(notification) => {
         // Handle navigation based on notification type
         if (notification.type === 'quiz' && notification.data?.quizId) {
-          window.location.href = `/quiz/${notification.data.quizId}`;
+          window.location.href = `/quiz?id=${notification.data.quizId}`;
         }
         if (notification.type === 'progress') {
           window.location.href = '/dashboard';
