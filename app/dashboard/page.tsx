@@ -89,8 +89,29 @@ function ARIAChat({ userId, accessToken, onClose }: { userId: string; accessToke
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
-      <div style={{ background: '#1A1008', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, width: '100%', maxWidth: 520, display: 'flex', flexDirection: 'column', height: 580 }}>
+    <>
+      <style>{`
+        .aria-chat-container {
+          background: #1A1008;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 20px;
+          width: 100%;
+          max-width: 520px;
+          display: flex;
+          flex-direction: column;
+          height: 580px;
+        }
+        @media (max-width: 640px) {
+          .aria-chat-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100% !important;
+            border-radius: 0 !important;
+          }
+        }
+      `}</style>
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+      <div className="aria-chat-container">
         {/* Header */}
         <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -171,6 +192,7 @@ function ARIAChat({ userId, accessToken, onClose }: { userId: string; accessToke
         </form>
       </div>
     </div>
+    </>
   );
 }
 
@@ -242,7 +264,7 @@ export default function DashboardPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0F0A07', color: '#EDE0D4' }}>
       <div style={{ position: 'fixed', top: 0, right: 0, zIndex: 50, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span style={{ fontSize: 13, color: 'rgba(237,224,212,0.5)' }}>{user.email}</span>
+        <span style={{ fontSize: 13, color: 'rgba(237,224,212,0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 150 }}>{user.email}</span>
         <button
           onClick={signOut}
           style={{ fontSize: 12, color: 'rgba(237,224,212,0.4)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '5px 12px', cursor: 'pointer' }}
