@@ -39,13 +39,26 @@ export default function ARIADashboard({
     : null;
 
   return (
-    <div style={{
-      padding: "32px 24px",
+    <>
+    <style>{`
+      .aria-dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 24px;
+      }
+      @media (max-width: 768px) {
+        .aria-dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    `}</style>
+    <div className="aria-dashboard-container" style={{
+      padding: "32px 16px",
       maxWidth: 1100,
       margin: "0 auto",
       color: "#EDE0D4",
     }}>
-      <div style={{ marginBottom: 32 }}>
+      <div style={{ marginBottom: 32, paddingTop: 48 }}>
         <div style={{ fontSize: 13, color: "rgba(201,135,79,0.6)", letterSpacing: 2 }}>
           ARIA DASHBOARD
         </div>
@@ -59,7 +72,7 @@ export default function ARIADashboard({
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 24 }}>
+      <div className="aria-dashboard-grid">
         <div>
           <ReadinessWidget 
             progress={userProgress} 
@@ -111,14 +124,14 @@ export default function ARIADashboard({
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(201,135,79,0.15)", borderRadius: 16, padding: 20 }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#C9874F", marginBottom: 14 }}>QUICK ACTIONS</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <button onClick={onStartQuiz} style={{ width: "100%", background: "linear-gradient(135deg, #C9874F, #A0522D)", color: "white", border: "none", padding: "14px 18px", borderRadius: 12, fontSize: 15, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              <button onClick={onStartQuiz} style={{ flex: "1 1 auto", minWidth: 140, background: "linear-gradient(135deg, #C9874F, #A0522D)", color: "white", border: "none", padding: "14px 18px", borderRadius: 12, fontSize: 15, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 ⚡ Start Diagnostic Quiz
               </button>
-              <button onClick={onViewFullSchedule} style={{ width: "100%", background: "rgba(255,255,255,0.06)", color: "#EDE0D4", border: "1px solid rgba(201,135,79,0.2)", padding: "14px 18px", borderRadius: 12, fontSize: 15, cursor: "pointer" }}>
+              <button onClick={onViewFullSchedule} style={{ flex: "1 1 auto", minWidth: 140, background: "rgba(255,255,255,0.06)", color: "#EDE0D4", border: "1px solid rgba(201,135,79,0.2)", padding: "14px 18px", borderRadius: 12, fontSize: 15, cursor: "pointer" }}>
                 📅 View Full Study Plan
               </button>
-              <button onClick={onOpenARIA} style={{ width: "100%", background: "rgba(255,255,255,0.06)", color: "#EDE0D4", border: "1px solid rgba(201,135,79,0.2)", padding: "14px 18px", borderRadius: 12, fontSize: 15, cursor: "pointer" }}>
+              <button onClick={onOpenARIA} style={{ flex: "1 1 auto", minWidth: 140, background: "rgba(255,255,255,0.06)", color: "#EDE0D4", border: "1px solid rgba(201,135,79,0.2)", padding: "14px 18px", borderRadius: 12, fontSize: 15, cursor: "pointer" }}>
                 💬 Talk to ARIA
               </button>
             </div>
@@ -133,5 +146,6 @@ export default function ARIADashboard({
         </div>
       </div>
     </div>
+    </>
   );
 }
