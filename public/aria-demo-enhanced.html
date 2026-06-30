@@ -231,12 +231,21 @@ function addMessage(role, content) {
   div.className = `msg ${role}`;
 
   if (role === "assistant") {
-    div.innerHTML = `
-      <div class="avatar">A</div>
-      <div class="bubble">${content}</div>
-    `;
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = "A";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = content;
+
+    div.appendChild(avatar);
+    div.appendChild(bubble);
   } else {
-    div.innerHTML = `<div class="bubble">${content}</div>`;
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = content;
+    div.appendChild(bubble);
   }
 
   container.appendChild(div);
